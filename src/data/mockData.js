@@ -26,10 +26,10 @@ export const statusTiles = [
 ];
 
 export const quickStats = [
-  { label: 'Connected Devices', value: 24, description: 'Devices currently paired with KRATOS' },
-  { label: 'Operators Online', value: 6, description: 'Active operator sessions right now' },
-  { label: 'Alerts This Week', value: 4, description: 'Incidents raised in the last 7 days' },
-  { label: 'Peak Power Today', value: '4.1kW', description: 'Highest instantaneous draw recorded' }
+  { label: 'Connected Devices', value: 24 },
+  { label: 'Operators Online', value: 6 },
+  { label: 'Alerts This Week', value: 4 },
+  { label: 'Peak Power Today', value: '4.1kW' }
 ];
 
 export const devices = [
@@ -57,9 +57,9 @@ export const users = [
 ];
 
 export const energyComparisons = [
-  { label: 'Yesterday', usage: '38.4 kWh', compare: '+7% vs yesterday avg', positive: true, description: '24-hour usage compared to historical daily baseline' },
-  { label: 'Last Week', usage: '249 kWh', compare: '-3% vs previous week', positive: false, description: '7-day usage compared to the week before' },
-  { label: 'Last Month', usage: '1,028 kWh', compare: '+5% vs previous month', positive: true, description: '30-day usage compared with prior monthly period' }
+  { label: 'Yesterday', usage: '38.4 kWh', compare: '+7% vs yesterday avg', positive: true },
+  { label: 'Last Week', usage: '249 kWh', compare: '-3% vs previous week', positive: false },
+  { label: 'Last Month', usage: '1,028 kWh', compare: '+5% vs previous month', positive: true }
 ];
 
 export const weeklyEnergyCostData = [
