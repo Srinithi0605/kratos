@@ -8,11 +8,12 @@ npm install
 npm run dev
 ```
 
-## Routes
-- `/login`
+## Routes order
 - `/app/dashboard`
 - `/app/energy`
 - `/app/sensors`
 - `/app/devices`
+- `/app/analytics`
 - `/app/users`
+- `/app/settings`
 - `/app/help`

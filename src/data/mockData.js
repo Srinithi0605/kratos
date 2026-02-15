@@ -3,7 +3,9 @@ export const navItems = [
   { name: 'Energy Monitoring', path: '/app/energy', icon: 'LineChart' },
   { name: 'Sensor Monitoring', path: '/app/sensors', icon: 'Radar' },
   { name: 'Device Control', path: '/app/devices', icon: 'SlidersHorizontal' },
-  { name: 'Users (Admin)', path: '/app/users', icon: 'Users' },
+  { name: 'Analytics / Report', path: '/app/analytics', icon: 'BarChart3' },
+  { name: 'Users', path: '/app/users', icon: 'Users' },
+  { name: 'Settings', path: '/app/settings', icon: 'Settings' },
   { name: 'Help', path: '/app/help', icon: 'CircleHelp' }
 ];
 
@@ -50,12 +52,52 @@ export const activityLog = [
 ];
 
 export const users = [
-  { username: 'admin01', role: 'Admin', lastLogin: 'Today, 08:58' },
-  { username: 'operator2', role: 'Operator', lastLogin: 'Today, 08:12' }
+  { username: 'admin01', role: 'Admin', lastLogin: 'Today, 08:58', status: 'Active' },
+  { username: 'operator2', role: 'Operator', lastLogin: 'Today, 08:12', status: 'Active' },
+  { username: 'jane', role: 'Operator', lastLogin: 'Yesterday, 19:30', status: 'Inactive' }
+];
+
+export const energyComparisons = [
+  { label: 'Yesterday', usage: '38.4 kWh', compare: '+7% vs yesterday avg', positive: true },
+  { label: 'Last Week', usage: '249 kWh', compare: '-3% vs previous week', positive: false },
+  { label: 'Last Month', usage: '1,028 kWh', compare: '+5% vs previous month', positive: true }
+];
+
+export const weeklyEnergyCostData = [
+  { day: 'Mon', energy: 92, cost: 26 },
+  { day: 'Tue', energy: 98, cost: 29 },
+  { day: 'Wed', energy: 87, cost: 24 },
+  { day: 'Thu', energy: 101, cost: 31 },
+  { day: 'Fri', energy: 95, cost: 28 },
+  { day: 'Sat', energy: 75, cost: 21 },
+  { day: 'Sun', energy: 70, cost: 20 }
+];
+
+export const sixMonthConsumptionData = [
+  { month: 'Jan', usage: 2650 },
+  { month: 'Feb', usage: 2520 },
+  { month: 'Mar', usage: 2780 },
+  { month: 'Apr', usage: 2710 },
+  { month: 'May', usage: 2990 },
+  { month: 'Jun', usage: 3210 }
+];
+
+export const topEnergyConsumers = [
+  { device: 'Conference AC', power: 42 },
+  { device: 'Lab Ventilation', power: 33 },
+  { device: 'Server Rack', power: 29 },
+  { device: 'Hallway Lights', power: 17 }
+];
+
+export const peakUsageHours = [
+  { time: '12:00 - 14:00', power: 18 },
+  { time: '09:00 - 11:00', power: 15 },
+  { time: '15:00 - 17:00', power: 13 },
+  { time: '18:00 - 20:00', power: 9 }
 ];
 
 export const faqs = [
   { q: 'How do I toggle automation?', a: 'Use the switch in zone tiles or sensor page to enable occupancy automation.' },
-  { q: 'Can I export energy reports?', a: 'Use the Export button on Energy Monitoring page (UI placeholder).' },
+  { q: 'Can I export energy reports?', a: 'Use the Export button on Analytics / Report page.' },
   { q: 'What does Emergency OFF do?', a: 'It instantly disables critical devices in manual override mode.' }
 ];

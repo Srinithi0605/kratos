@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom';
-import { CircleHelp, LayoutDashboard, LineChart, LogOut, Radar, Settings, SlidersHorizontal, Users } from 'lucide-react';
+import { BarChart3, CircleHelp, LayoutDashboard, LineChart, LogOut, Radar, Settings, SlidersHorizontal, Users } from 'lucide-react';
 import { navItems } from '../data/mockData';
 
-const icons = { LayoutDashboard, LineChart, Radar, SlidersHorizontal, Users, CircleHelp };
+const icons = { LayoutDashboard, LineChart, Radar, SlidersHorizontal, BarChart3, Users, Settings, CircleHelp };
 
 export default function Sidebar({ collapsed }) {
   return (
@@ -28,7 +28,6 @@ export default function Sidebar({ collapsed }) {
       </nav>
       <div className="absolute bottom-5 left-3 right-3 space-y-2">
         <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-600 hover:bg-emerald-50"><Settings size={18} />{!collapsed && 'Settings'}</button>
-        <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-gray-600 hover:bg-emerald-50"><CircleHelp size={18} />{!collapsed && 'Help'}</button>
         <button className="flex w-full items-center gap-3 rounded-xl border border-rose-200 px-3 py-2 text-sm text-rose-600"><LogOut size={18} />{!collapsed && 'Logout'}</button>
       </div>
     </aside>
