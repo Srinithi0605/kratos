@@ -1,10 +1,8 @@
-import { useState, useMemo } from 'react';
-import ToggleSwitch from '../components/ToggleSwitch';
+import { useMemo, useState } from 'react';
 import RoomVisualization from '../components/RoomVisualization';
+import ToggleSwitch from '../components/ToggleSwitch';
 
-// Lab configurations organized by E Block floors
 const roomConfigurations = {
-  // E Block 1st Floor Labs
   lab1: {
     id: 'lab1',
     name: 'Lab 1 - E Block 1st Floor',
@@ -41,7 +39,6 @@ const roomConfigurations = {
       { id: 'l3-fan3', name: 'Emergency Fan', type: 'fan', position: { x: 350, y: 150 } },
     ],
   },
-  // E Block 3rd Floor Labs
   lab4: {
     id: 'lab4',
     name: 'Lab 4 - E Block 3rd Floor',
@@ -80,11 +77,10 @@ const roomConfigurations = {
   },
 };
 
-// Initialize all devices with default status
 const initializeDevices = () => {
   const allDevices = [];
-  Object.values(roomConfigurations).forEach(room => {
-    room.devices.forEach(device => {
+  Object.values(roomConfigurations).forEach((room) => {
+    room.devices.forEach((device) => {
       allDevices.push({
         ...device,
         zone: room.name,
@@ -98,17 +94,15 @@ const initializeDevices = () => {
 
 export default function DeviceControlPage() {
   const [devices, setDevices] = useState(initializeDevices());
-  const [selectedRoom, setSelectedRoom] = useState('lab1');
-
-  const currentRoom = roomConfigurations[selectedRoom];
-  const roomDevices = useMemo(() =>
-    devices.filter(device => device.zone === currentRoom.name),
+  const currentRoom = roomConfigurations.lab1;
+  const roomDevices = useMemo(
+    () => devices.filter((device) => device.zone === currentRoom.name),
     [devices, currentRoom.name]
   );
 
   const toggleDevice = (deviceId, newState) => {
-    setDevices(prevDevices =>
-      prevDevices.map(device =>
+    setDevices((prevDevices) =>
+      prevDevices.map((device) =>
         device.id === deviceId
           ? { ...device, enabled: newState, status: newState ? 'Active' : 'Inactive' }
           : device
@@ -116,87 +110,44 @@ export default function DeviceControlPage() {
     );
   };
 
-  const toggleDeviceByName = (deviceName, newState) => {
-    setDevices(prevDevices =>
-      prevDevices.map(device =>
-        device.name === deviceName
-          ? { ...device, enabled: newState, status: newState ? 'Active' : 'Inactive' }
-          : device
-      )
-    );
-  };
-
-  // Group all devices by zone for the device list
-  const devicesByZone = useMemo(() =>
-    devices.reduce((acc, device) => {
-      if (!acc[device.zone]) {
-        acc[device.zone] = [];
-      }
-      acc[device.zone].push(device);
-      return acc;
-    }, {}),
-    [devices]
-  );
-
   return (
     <div className="space-y-8 p-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-3xl font-bold text-emerald-700">Lab Control System</h1>
           <p className="text-gray-600">Manage lab equipment and environmental controls</p>
         </div>
-
-        {/* Lab Selector */}
-        <div className="w-full md:w-64">
-          <label htmlFor="room-select" className="block text-sm font-medium text-gray-700 mb-1">
-            Select Lab
-          </label>
-          <select
-            id="room-select"
-            value={selectedRoom}
-            onChange={(e) => setSelectedRoom(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-          >
-            {Object.values(roomConfigurations).map((room) => (
-              <option key={room.id} value={room.id}>
-                {room.name}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
 
-      {/* Lab Visualization */}
       <div className="card-surface p-6">
-        <h2 className="text-xl font-semibold mb-4 text-emerald-800">
+        <h2 className="mb-4 text-xl font-semibold text-emerald-800">
           {currentRoom.name} - Equipment Layout
         </h2>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <RoomVisualization
-            room={currentRoom}
-            devices={roomDevices}
-            onToggleDevice={toggleDevice}
-          />
+        <div className="rounded-lg bg-gray-50 p-4">
+          <RoomVisualization room={currentRoom} devices={roomDevices} onToggleDevice={toggleDevice} />
         </div>
       </div>
 
-      {/* Equipment Controls for Current Lab */}
       <div className="card-surface p-6">
-        <h2 className="text-xl font-semibold mb-4 text-emerald-800">
+        <h2 className="mb-4 text-xl font-semibold text-emerald-800">
           {currentRoom.name} - Equipment Controls
         </h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {roomDevices.map((device) => (
-            <div key={device.id} className="p-4 border border-emerald-100 rounded-xl hover:shadow-md transition-shadow">
+            <div
+              key={device.id}
+              className="rounded-xl border border-emerald-100 p-4 transition-shadow hover:shadow-md"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold text-gray-800">{device.name}</h3>
-                  <div className="flex items-center mt-1">
-                    <span className={`inline-block w-2 h-2 rounded-full mr-2 ${device.enabled ? 'bg-emerald-500' : 'bg-gray-400'
-                      }`}></span>
-                    <span className="text-sm text-gray-600">
-                      {device.enabled ? 'Active' : 'Inactive'}
-                    </span>
+                  <div className="mt-1 flex items-center">
+                    <span
+                      className={`mr-2 inline-block h-2 w-2 rounded-full ${
+                        device.enabled ? 'bg-emerald-500' : 'bg-gray-400'
+                      }`}
+                    />
+                    <span className="text-sm text-gray-600">{device.enabled ? 'Active' : 'Inactive'}</span>
                   </div>
                 </div>
                 <ToggleSwitch
@@ -208,69 +159,21 @@ export default function DeviceControlPage() {
               <div className="mt-3 flex items-center text-sm text-gray-500">
                 {device.type === 'light' ? (
                   <span className="flex items-center">
-                    <span className="w-2 h-2 rounded-full bg-yellow-400 mr-1"></span>
+                    <span className="mr-1 h-2 w-2 rounded-full bg-yellow-400" />
                     Light
                   </span>
                 ) : (
                   <span className="flex items-center">
-                    <span className="w-2 h-2 rounded-full bg-blue-400 mr-1"></span>
+                    <span className="mr-1 h-2 w-2 rounded-full bg-blue-400" />
                     Fan
                   </span>
                 )}
-                <span className="mx-2">•</span>
+                <span className="mx-2">&bull;</span>
                 <span>Zone: {device.zone}</span>
               </div>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* All Devices List */}
-      <div className="card-surface p-6">
-        <h2 className="text-xl font-semibold mb-4 text-emerald-800">All Devices</h2>
-        {Object.entries(devicesByZone).map(([zone, zoneDevices]) => (
-          <div key={zone} className="mb-6">
-            <h3 className="text-lg font-medium text-gray-800 mb-3 border-b pb-2">{zone}</h3>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {zoneDevices.map((device) => (
-                <div key={device.id} className="p-4 border border-gray-100 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-gray-800">{device.name}</h3>
-                      <div className="flex items-center mt-1">
-                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${device.enabled ? 'bg-emerald-500' : 'bg-gray-400'
-                          }`}></span>
-                        <span className="text-sm text-gray-600">
-                          {device.enabled ? 'Active' : 'Inactive'}
-                        </span>
-                      </div>
-                    </div>
-                    <ToggleSwitch
-                      checked={device.enabled}
-                      onChange={(val) => toggleDevice(device.id, val)}
-                      id={`toggle-all-${device.id}`}
-                    />
-                  </div>
-                  <div className="mt-3 flex items-center text-sm text-gray-500">
-                    {device.type === 'light' ? (
-                      <span className="flex items-center">
-                        <span className="w-2 h-2 rounded-full bg-yellow-400 mr-1"></span>
-                        Light
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        <span className="w-2 h-2 rounded-full bg-blue-400 mr-1"></span>
-                        Fan
-                      </span>
-                    )}
-                    <span className="mx-2">•</span>
-                    <span>Zone: {device.zone}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
