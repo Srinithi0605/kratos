@@ -17,7 +17,7 @@ const DB_SCHEMA = (process.env.DB_SCHEMA || "public").replace(/[^a-zA-Z0-9_]/g, 
 let previousDeviceStates = new Map();
 
 // ESP32 IP Configuration
-const ESP32_IP = "http://10.109.157.109";
+const ESP32_IP = "http://10.68.240.109";
 
 // Function to trigger ESP32
 async function triggerESP32(deviceId, state) {
@@ -25,11 +25,26 @@ async function triggerESP32(deviceId, state) {
     return; // Skip ESP32 calls if not enabled
   }
 
+  const action = state ? "on" : "off";
+  const endpoint = `${ESP32_IP}/${action}${deviceId}`;
+  console.log(`Sending ESP32 command: ${endpoint}`);
+
   try {
-    const action = state ? "on" : "off";
-    const endpoint = `${ESP32_IP}/${action}${deviceId}`;
-    console.log(`Sending ESP32 command: ${endpoint}`);
-    await axios.get(endpoint, { timeout: 5000 });
+    const response = await axios.get(endpoint, {
+      timeout: 10000,
+      validateStatus: () => true
+    });
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new Error(`ESP32 returned HTTP ${response.status}`);
+    }
+
+    return {
+      sent: true,
+      skipped: false,
+      endpoint,
+      httpStatus: response.status
+    };
   } catch (err) {
     const message = `ESP32 request failed for ${endpoint}: ${err.message}`;
     console.error(message);
