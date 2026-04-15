@@ -17,20 +17,23 @@ const DB_SCHEMA = (process.env.DB_SCHEMA || "public").replace(/[^a-zA-Z0-9_]/g, 
 let previousDeviceStates = new Map();
 
 // ESP32 IP Configuration
-const ESP32_IP = "http://10.20.3.109";
+const ESP32_IP = "http://10.109.157.109";
 
 // Function to trigger ESP32
 async function triggerESP32(deviceId, state) {
+  if (!ENABLE_ESP32) {
+    return; // Skip ESP32 calls if not enabled
+  }
+
   try {
-    if (state) {
-      console.log(`Turning fan ${deviceId} OFF (ESP32 logic inverted)`);
-      await axios.get(`${ESP32_IP}/off`, { timeout: 5000 });
-    } else {
-      console.log(`Turning fan ${deviceId} ON (ESP32 logic inverted)`);
-      await axios.get(`${ESP32_IP}/on`, { timeout: 5000 });
-    }
+    const action = state ? "on" : "off";
+    const endpoint = `${ESP32_IP}/${action}${deviceId}`;
+    console.log(`Sending ESP32 command: ${endpoint}`);
+    await axios.get(endpoint, { timeout: 5000 });
   } catch (err) {
-    console.error(`ESP32 error:`, err.message);
+    const message = `ESP32 request failed for ${endpoint}: ${err.message}`;
+    console.error(message);
+    throw new Error(message);
   }
 }
 
@@ -524,7 +527,138 @@ app.post("/api/labs/:labId/bulk-assign-devices", async (req, res) => {
       assignedCount: result.assignedCount
     });
   } catch (error) {
-    console.error("Error in bulk device assignment:", error);
+    console.error("Error bulk assigning devices to lab:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/api/setup-zones-for-all-labs", async (req, res) => {
+  try {
+    const result = await ZoneAutomationService.createZonesForAllExistingLabs();
+
+    res.json({
+      message: "Zone setup completed for all labs",
+      totalLabs: result.totalLabs,
+      results: result.results
+    });
+
+  } catch (error) {
+    console.error("Error setting up zones for all labs:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/api/labs/:labId/zone-integrity", async (req, res) => {
+  try {
+    const { labId } = req.params;
+    const result = await ZoneAutomationService.validateZoneIntegrity(labId);
+
+    res.json(result);
+
+  } catch (error) {
+    console.error("Error validating zone integrity:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ================= ENERGY =================
+
+app.get("/api/energy-consumption/:labId", async (req, res) => {
+  try {
+    const { labId } = req.params;
+    if (labId === 'test-lab') {
+      // Return mock energy consumption data for test lab
+      const mockData = [];
+      const today = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        mockData.push({
+          date: date.toISOString().split('T')[0],
+          total: (Math.random() * 10 + 5).toFixed(2) // Random energy between 5-15 kWh
+        });
+      }
+      return res.json(mockData);
+    }
+
+    const result = await pool.query(
+      `SELECT date, SUM(energy_kwh) total
+       FROM ${DB_SCHEMA}.energy_consumption
+       WHERE lab_id=$1 GROUP BY date`,
+      [labId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching energy consumption:", error);
+    res.status(500).json({ message: "Error" });
+  }
+});
+
+// ================= DEVICE UPDATE =================
+
+app.post("/api/esp32/control", async (req, res) => {
+  try {
+    const { device_id, status } = req.body;
+    const resolvedDeviceId = device_id;
+
+    if (!resolvedDeviceId || status === undefined) {
+      return res.status(400).json({
+        message: "device_id and status required"
+      });
+    }
+
+    const normalizedDeviceId = String(resolvedDeviceId);
+    if (!["1", "2"].includes(normalizedDeviceId)) {
+      return res.status(400).json({
+        message: "device_id must be 1 or 2 in simulation mode"
+      });
+    }
+
+    const deviceStatus = status === "ON" || status === true;
+    await triggerESP32(normalizedDeviceId, deviceStatus);
+
+    res.status(200).json({
+      message: "ESP32 command sent",
+      device_id: normalizedDeviceId,
+      status: deviceStatus
+    });
+  } catch (error) {
+    console.error("Error sending ESP32 command:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/api/devices/update", async (req, res) => {
+  try {
+    const { device_id, lab_id, status, current } = req.body;
+
+    if (!device_id || !lab_id || status === undefined || current === undefined) {
+      return res.status(400).json({
+        message: "device_id, lab_id, status, current required"
+      });
+    }
+
+    console.log("Received device update:", { device_id, lab_id, status, current });
+    const deviceStatus = status === "ON";
+
+    const result = await pool.query(
+      `UPDATE ${DB_SCHEMA}.devices
+       SET device_status = $1,
+           sensor_reading = $2
+       WHERE device_id = $3 AND lab_id = $4`,
+      [deviceStatus, current, device_id, lab_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        message: "Device not found for this lab"
+      });
+    }
+
+    res.status(200).json({ message: "Updated successfully" });
+
+  } catch (error) {
+    console.error("Error updating device:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
